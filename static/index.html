@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EgoPitch - 球星访谈模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0 30px;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #f5af19, #f12711);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        header p {
+            color: #888;
+        }
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layer-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .layer-1 { background: #22c55e; }
+        .layer-2 { background: #f59e0b; }
+        .layer-3 { background: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .anger-bar {
+            flex: 1;
+            margin: 0 20px;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .anger-fill {
+            height: 100%;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 6px;
+        }
+        .anger-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(239, 68, 68, 0.9);
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 100;
+            animation: popIn 0.5s ease-out forwards;
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        .chat-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        .message.host {
+            background: #2563eb;
+            margin-right: auto;
+        }
+        .message.star {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            margin-left: auto;
+        }
+        .message .sender {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        .message .anger-tag {
+            font-size: 0.7rem;
+            color: #f59e0b;
+            margin-top: 4px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+        .input-area input::placeholder {
+            color: #666;
+        }
+        .input-area button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .input-area button:hover {
+            transform: scale(1.05);
+        }
+        .reset-btn {
+            background: rgba(255,255,255,0.2) !important;
+            margin-left: 10px;
+        }
+        .triggers {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .triggers h3 {
+            margin-bottom: 10px;
+            color: #f59e0b;
+        }
+        .trigger-group {
+            margin-bottom: 10px;
+        }
+        .trigger-group .label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .trigger-group.heavy .label { color: #ef4444; }
+        .trigger-group.medium .label { color: #f59e0b; }
+        .trigger-group.light .label { color: #22c55e; }
+        .triggers span {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .trigger-group.heavy span:hover { background: rgba(239, 68, 68, 0.7); }
+        .trigger-group.medium span:hover { background: rgba(249, 158, 11, 0.7); }
+        .trigger-group.light span:hover { background: rgba(34, 197, 94, 0.7); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EgoPitch</h1>
+            <p>世界杯球星 AI 访谈模拟器 - 问题越犀利，怒气越高！</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="layer-badge layer-1" id="layerBadge">公共人格</div>
+            <div class="anger-bar">
+                <div class="anger-fill" id="angerFill" style="width: 0%; background: #22c55e;"></div>
+            </div>
+            <span id="angerText">怒气: 0%</span>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message star">
+                <div class="sender">C罗</div>
+                <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()">发送</button>
+            <button class="reset-btn" onclick="resetGame()">重置</button>
+        </div>
+
+        <div class="triggers">
+            <h3>🎯 敏感词分级 (试试组合使用)</h3>
+            <div class="trigger-group heavy">
+                <div class="label">重度触发 (+15): 直接攻击核心自尊</div>
+                <span onclick="useTrigger('替补')">替补</span>
+                <span onclick="useTrigger('替补席')">替补席</span>
+                <span onclick="useTrigger('坐板凳')">坐板凳</span>
+                <span onclick="useTrigger('废物')">废物</span>
+            </div>
+            <div class="trigger-group medium">
+                <div class="label">中度触发 (+10): 质疑能力和地位</div>
+                <span onclick="useTrigger('梅西')">梅西</span>
+                <span onclick="useTrigger('下滑')">下滑</span>
+                <span onclick="useTrigger('老了')">老了</span>
+                <span onclick="useTrigger('不如')">不如</span>
+                <span onclick="useTrigger('过气')">过气</span>
+            </div>
+            <div class="trigger-group light">
+                <div class="label">轻度触发 (+5): 暗示性批评 + AI智能分析</div>
+                <span onclick="useTrigger('为什么')">为什么</span>
+                <span onclick="useTrigger('质疑')">质疑</span>
+                <span onclick="useTrigger('批评')">批评</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'host', 0);
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+
+                // 显示怒气增加值弹窗
+                if (data.anger_increase > 0) {
+                    showAngerPopup(data.anger_increase);
+                }
+
+                setTimeout(() => {
+                    addMessage(data.response, 'star', data.anger_increase);
+                    updateState(data.anger, data.layer, data.layer_name);
+                }, 300);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function showAngerPopup(increase) {
+            const popup = document.createElement('div');
+            popup.className = 'anger-popup';
+            popup.textContent = `怒气 +${increase}`;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 500);
+        }
+
+        function addMessage(text, type, angerInc) {
+            const container = document.getElementById('chatContainer');
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+
+            let angerTag = '';
+            if (angerInc > 0 && type === 'star') {
+                angerTag = `<div class="anger-tag">⚡ 本次触发 +${angerInc}</div>`;
+            }
+
+            msg.innerHTML = `
+                <div class="sender">${type === 'host' ? '主持人' : 'C罗'}</div>
+                <div>${text}</div>
+                ${angerTag}
+            `;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateState(anger, layer, layerName) {
+            document.getElementById('angerFill').style.width = `${anger}%`;
+            document.getElementById('angerText').textContent = `怒气: ${anger}%`;
+
+            const angerFill = document.getElementById('angerFill');
+            if (anger < 40) {
+                angerFill.style.background = '#22c55e';
+            } else if (anger < 80) {
+                angerFill.style.background = '#f59e0b';
+            } else {
+                angerFill.style.background = '#ef4444';
+            }
+
+            const badge = document.getElementById('layerBadge');
+            badge.textContent = layerName;
+            badge.className = `layer-badge layer-${layer}`;
+        }
+
+        function useTrigger(word) {
+            document.getElementById('messageInput').value = `你觉得${word}这个问题怎么看？`;
+            sendMessage();
+        }
+
+        async function resetGame() {
+            try {
+                await fetch('/api/reset', { method: 'POST' });
+                updateState(0, 1, '公共人格');
+                document.getElementById('chatContainer').innerHTML = `
+                    <div class="message star">
+                        <div class="sender">C罗</div>
+                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
