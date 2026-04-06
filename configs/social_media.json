@@ -1,0 +1,79 @@
+{
+  "comment_types": {
+    "fan": {
+      "name": "人迷",
+      "sentiment": "positive",
+      "weight": -3,
+      "templates": [
+        "永远的GOAT！支持你！",
+        "不管怎样你都是最好的",
+        "历史最佳射手，没人能比",
+        "我们永远爱你！",
+        "你是我们的骄傲"
+      ]
+    },
+    "hater": {
+      "name": "黑粉",
+      "sentiment": "negative",
+      "weight": 8,
+      "templates": [
+        "老了就该退役，别占着位置",
+        "替补是事实，有什么好说的",
+        "梅西才是真正的GOAT",
+        "只会抱怨，毫无职业素养",
+        "过气了，接受现实吧",
+        "世界杯都没拿过，还敢说自己是最佳？",
+        "只会进球，不会配合团队"
+      ]
+    },
+    "neutral": {
+      "name": "理客中",
+      "sentiment": "neutral",
+      "weight": 2,
+      "templates": [
+        "数据确实厉害，但年龄是事实",
+        "客观来说，状态确实有下滑",
+        "替补也没什么，很多球星都经历过",
+        "换位思考一下，教练的安排也有道理",
+        "理性讨论，不要人身攻击"
+      ]
+    },
+    "provocative": {
+      "name": "挑衅型",
+      "sentiment": "negative",
+      "weight": 15,
+      "templates": [
+        "@CR7 说说替补席的感受？",
+        "@CR7 梅西拿了世界杯，你呢？",
+        "@CR7 教练不让你上场是有原因的",
+        "@CR7 别再吹嘘了，现在谁还信？",
+        "@CR7 更衣室内幕爆一下？"
+      ]
+    }
+  },
+
+  "hot_topics": [
+    {
+      "topic": "替补争议",
+      "keywords": ["替补", "板凳", "上场时间"],
+      "comment_bias": "hater"
+    },
+    {
+      "topic": "梅西对比",
+      "keywords": ["梅西", "GOAT", "世界杯"],
+      "comment_bias": "provocative"
+    },
+    {
+      "topic": "年龄质疑",
+      "keywords": ["老了", "下滑", "退役"],
+      "comment_bias": "hater"
+    }
+  ],
+
+  "pulse_settings": {
+    "min_interval": 3,
+    "max_interval": 8,
+    "comments_per_pulse": 3,
+    "enable_at_mentions": true
+  }
+}

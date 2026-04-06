@@ -5,36 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EgoPitch - 球星访谈模拟器</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            padding: 20px 0 30px;
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 20px 0 30px; }
         header h1 {
             font-size: 2.5rem;
             background: linear-gradient(90deg, #f5af19, #f12711);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
         }
-        header p {
-            color: #888;
-        }
+        header p { color: #888; margin-top: 10px; }
+
+        /* 状态栏 */
         .status-bar {
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
@@ -43,6 +31,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .star-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #f5af19;
         }
         .layer-badge {
             padding: 8px 16px;
@@ -70,12 +63,124 @@
             transition: width 0.3s, background 0.3s;
             border-radius: 6px;
         }
+
+        /* 主内容区 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        /* 聊天区 */
+        .chat-section { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; }
+        .chat-container {
+            height: 350px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+        }
+        .message.host { background: #2563eb; margin-right: auto; }
+        .message.star { background: linear-gradient(135deg, #7c3aed, #a855f7); margin-left: auto; }
+        .message .sender { font-size: 0.75rem; opacity: 0.7; margin-bottom: 4px; }
+        .message .anger-tag { font-size: 0.7rem; color: #f59e0b; margin-top: 4px; }
+        .input-area { display: flex; gap: 10px; }
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .input-area input::placeholder { color: #666; }
+        .input-area button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .input-area button:hover { transform: scale(1.02); }
+        .reset-btn { background: rgba(255,255,255,0.2) !important; }
+
+        /* 舆论区 */
+        .pulse-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 15px;
+        }
+        .pulse-section h3 {
+            font-size: 1rem;
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+        .sentiment-bar {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .comment-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .comment-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .comment-item.fan { border-left: 3px solid #22c55e; }
+        .comment-item.hater { border-left: 3px solid #ef4444; }
+        .comment-item.neutral { border-left: 3px solid #888; }
+        .comment-item.provocative { border-left: 3px solid #f59e0b; }
+        .comment-content { font-size: 0.85rem; }
+        .comment-meta {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 触发词面板 */
+        .triggers-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .triggers-panel h4 { color: #f59e0b; margin-bottom: 10px; }
+        .trigger-group { margin-bottom: 8px; }
+        .trigger-group .label { font-size: 0.75rem; color: #666; }
+        .trigger-group span {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin: 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .trigger-group.heavy span:hover { background: rgba(239, 68, 68, 0.6); }
+        .trigger-group.medium span:hover { background: rgba(249, 158, 11, 0.6); }
+        .trigger-group.light span:hover { background: rgba(34, 197, 94, 0.6); }
+
+        /* 怒气弹窗 */
         .anger-popup {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(239, 68, 68, 0.9);
+            background: rgba(239, 68, 68, 0.95);
             padding: 20px 40px;
             border-radius: 16px;
             font-size: 1.5rem;
@@ -88,162 +193,93 @@
             50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
         }
-        .chat-container {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            height: 400px;
-            overflow-y: auto;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .message {
-            margin-bottom: 15px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 80%;
-        }
-        .message.host {
-            background: #2563eb;
-            margin-right: auto;
-        }
-        .message.star {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            margin-left: auto;
-        }
-        .message .sender {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            margin-bottom: 4px;
-        }
-        .message .anger-tag {
-            font-size: 0.7rem;
-            color: #f59e0b;
-            margin-top: 4px;
-        }
-        .input-area {
-            display: flex;
-            gap: 10px;
-        }
-        .input-area input {
-            flex: 1;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 1rem;
-        }
-        .input-area input::placeholder {
-            color: #666;
-        }
-        .input-area button {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #f5af19, #f12711);
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .input-area button:hover {
-            transform: scale(1.05);
-        }
-        .reset-btn {
-            background: rgba(255,255,255,0.2) !important;
-            margin-left: 10px;
-        }
-        .triggers {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-        }
-        .triggers h3 {
-            margin-bottom: 10px;
-            color: #f59e0b;
-        }
-        .trigger-group {
-            margin-bottom: 10px;
-        }
-        .trigger-group .label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 5px;
-        }
-        .trigger-group.heavy .label { color: #ef4444; }
-        .trigger-group.medium .label { color: #f59e0b; }
-        .trigger-group.light .label { color: #22c55e; }
-        .triggers span {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 15px;
-            margin: 3px;
+
+        /* 阶段提示 */
+        .phase-indicator {
             font-size: 0.85rem;
-            cursor: pointer;
-            transition: background 0.2s;
+            color: #888;
+            text-align: center;
+            margin-bottom: 10px;
         }
-        .trigger-group.heavy span:hover { background: rgba(239, 68, 68, 0.7); }
-        .trigger-group.medium span:hover { background: rgba(249, 158, 11, 0.7); }
-        .trigger-group.light span:hover { background: rgba(34, 197, 94, 0.7); }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>EgoPitch</h1>
-            <p>世界杯球星 AI 访谈模拟器 - 问题越犀利，怒气越高！</p>
+            <p>世界杯球星 AI 访谈模拟器 - 问题越犀利，怒气越高！舆论实时注入刺激球星情绪</p>
         </header>
 
+        <div class="phase-indicator" id="phaseIndicator">访谈阶段: 开场阶段</div>
+
         <div class="status-bar">
+            <div class="star-name" id="starName">C罗</div>
             <div class="layer-badge layer-1" id="layerBadge">公共人格</div>
             <div class="anger-bar">
                 <div class="anger-fill" id="angerFill" style="width: 0%; background: #22c55e;"></div>
             </div>
             <span id="angerText">怒气: 0%</span>
+            <span id="sentimentText" style="color: #ef4444;">舆论: 0</span>
         </div>
 
-        <div class="chat-container" id="chatContainer">
-            <div class="message star">
-                <div class="sender">C罗</div>
-                <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
-            </div>
-        </div>
+        <div class="main-content">
+            <!-- 聊天区 -->
+            <div class="chat-section">
+                <div class="chat-container" id="chatContainer">
+                    <div class="message star">
+                        <div class="sender">C罗</div>
+                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button onclick="sendMessage()">发送</button>
+                    <button class="reset-btn" onclick="resetGame()">重置</button>
+                    <button class="reset-btn" onclick="getPulse()">舆论</button>
+                </div>
 
-        <div class="input-area">
-            <input type="text" id="messageInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendMessage()">
-            <button onclick="sendMessage()">发送</button>
-            <button class="reset-btn" onclick="resetGame()">重置</button>
-        </div>
+                <div class="triggers-panel">
+                    <h4>🎯 敏感词分级</h4>
+                    <div class="trigger-group heavy">
+                        <div class="label">重度触发 (+15)</div>
+                        <span onclick="useTrigger('替补')">替补</span>
+                        <span onclick="useTrigger('替补席')">替补席</span>
+                        <span onclick="useTrigger('废物')">废物</span>
+                    </div>
+                    <div class="trigger-group medium">
+                        <div class="label">中度触发 (+10)</div>
+                        <span onclick="useTrigger('梅西')">梅西</span>
+                        <span onclick="useTrigger('下滑')">下滑</span>
+                        <span onclick="useTrigger('老了')">老了</span>
+                        <span onclick="useTrigger('过气')">过气</span>
+                    </div>
+                    <div class="trigger-group light">
+                        <div class="label">轻度触发 (+5) + AI智能分析</div>
+                        <span onclick="useTrigger('为什么')">为什么</span>
+                        <span onclick="useTrigger('质疑')">质疑</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="triggers">
-            <h3>🎯 敏感词分级 (试试组合使用)</h3>
-            <div class="trigger-group heavy">
-                <div class="label">重度触发 (+15): 直接攻击核心自尊</div>
-                <span onclick="useTrigger('替补')">替补</span>
-                <span onclick="useTrigger('替补席')">替补席</span>
-                <span onclick="useTrigger('坐板凳')">坐板凳</span>
-                <span onclick="useTrigger('废物')">废物</span>
-            </div>
-            <div class="trigger-group medium">
-                <div class="label">中度触发 (+10): 质疑能力和地位</div>
-                <span onclick="useTrigger('梅西')">梅西</span>
-                <span onclick="useTrigger('下滑')">下滑</span>
-                <span onclick="useTrigger('老了')">老了</span>
-                <span onclick="useTrigger('不如')">不如</span>
-                <span onclick="useTrigger('过气')">过气</span>
-            </div>
-            <div class="trigger-group light">
-                <div class="label">轻度触发 (+5): 暗示性批评 + AI智能分析</div>
-                <span onclick="useTrigger('为什么')">为什么</span>
-                <span onclick="useTrigger('质疑')">质疑</span>
-                <span onclick="useTrigger('批评')">批评</span>
+            <!-- 舆论区 -->
+            <div class="pulse-section">
+                <h3>📢 社交舆论</h3>
+                <div class="sentiment-bar" id="pulseStatus">负面舆论累计: 0</div>
+                <div class="comment-list" id="commentList">
+                    <div style="color: #666; font-size: 0.85rem;">舆论评论将随访谈深入自动生成...</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        const phaseNames = {
+            1: '开场阶段',
+            2: '试探阶段',
+            3: '深挖阶段',
+            4: '引爆阶段'
+        };
+
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -260,15 +296,44 @@
                 });
                 const data = await response.json();
 
-                // 显示怒气增加值弹窗
                 if (data.anger_increase > 0) {
                     showAngerPopup(data.anger_increase);
                 }
 
                 setTimeout(() => {
                     addMessage(data.response, 'star', data.anger_increase);
-                    updateState(data.anger, data.layer, data.layer_name);
+                    updateState(data);
+                    addComments(data.comments);
                 }, 300);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function getPulse() {
+            try {
+                const response = await fetch('/api/comments');
+                const data = await response.json();
+                addComments(data.comments);
+                document.getElementById('pulseStatus').textContent = `负面舆论累计: ${data.sentiment}`;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function resetGame() {
+            try {
+                await fetch('/api/reset', { method: 'POST' });
+                document.getElementById('chatContainer').innerHTML = `
+                    <div class="message star">
+                        <div class="sender">C罗</div>
+                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                    </div>
+                `;
+                document.getElementById('commentList').innerHTML = `
+                    <div style="color: #666; font-size: 0.85rem;">舆论评论将随访谈深入自动生成...</div>
+                `;
+                updateState({ anger: 0, layer: 1, layer_name: '公共人格', sentiment: 0, phase: 1 });
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -301,22 +366,43 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function updateState(anger, layer, layerName) {
-            document.getElementById('angerFill').style.width = `${anger}%`;
-            document.getElementById('angerText').textContent = `怒气: ${anger}%`;
+        function addComments(comments) {
+            if (!comments || comments.length === 0) return;
+
+            const list = document.getElementById('commentList');
+            list.innerHTML = '';
+
+            comments.forEach(c => {
+                const item = document.createElement('div');
+                item.className = `comment-item ${c.type}`;
+                item.innerHTML = `
+                    <div class="comment-content">${c.content}</div>
+                    <div class="comment-meta">
+                        <span>${c.type}</span>
+                        <span>❤ ${c.likes}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updateState(data) {
+            document.getElementById('angerFill').style.width = `${data.anger}%`;
+            document.getElementById('angerText').textContent = `怒气: ${data.anger}%`;
+            document.getElementById('layerBadge').textContent = data.layer_name;
+            document.getElementById('layerBadge').className = `layer-badge layer-${data.layer}`;
 
             const angerFill = document.getElementById('angerFill');
-            if (anger < 40) {
-                angerFill.style.background = '#22c55e';
-            } else if (anger < 80) {
-                angerFill.style.background = '#f59e0b';
-            } else {
-                angerFill.style.background = '#ef4444';
-            }
+            if (data.anger < 40) angerFill.style.background = '#22c55e';
+            else if (data.anger < 80) angerFill.style.background = '#f59e0b';
+            else angerFill.style.background = '#ef4444';
 
-            const badge = document.getElementById('layerBadge');
-            badge.textContent = layerName;
-            badge.className = `layer-badge layer-${layer}`;
+            // 更新舆论值
+            fetch('/api/state').then(r => r.json()).then(s => {
+                document.getElementById('sentimentText').textContent = `舆论: ${s.sentiment}`;
+                document.getElementById('pulseStatus').textContent = `负面舆论累计: ${s.sentiment}`;
+                document.getElementById('phaseIndicator').textContent = `访谈阶段: ${phaseNames[s.phase] || '开场阶段'}`;
+            });
         }
 
         function useTrigger(word) {
@@ -324,20 +410,11 @@
             sendMessage();
         }
 
-        async function resetGame() {
-            try {
-                await fetch('/api/reset', { method: 'POST' });
-                updateState(0, 1, '公共人格');
-                document.getElementById('chatContainer').innerHTML = `
-                    <div class="message star">
-                        <div class="sender">C罗</div>
-                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+        // 初始化状态
+        fetch('/api/state').then(r => r.json()).then(data => {
+            document.getElementById('starName').textContent = data.star;
+            updateState(data);
+        });
     </script>
 </body>
 </html>
