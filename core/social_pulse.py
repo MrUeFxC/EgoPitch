@@ -48,7 +48,7 @@ class SocialPulse:
     def generate_comments(
         self,
         topic: Optional[str] = None,
-        count: int = 3,
+        count: int = 5,
         star_name: str = "C罗"
     ) -> List[Comment]:
         """
@@ -70,10 +70,11 @@ class SocialPulse:
         else:
             # 默认分布：更多负面评论
             type_weights = {
-                "fan": 0.2,
-                "hater": 0.4,
-                "neutral": 0.25,
-                "provocative": 0.15
+                "fan": 0.15,
+                "hater": 0.30,
+                "neutral": 0.20,
+                "provocative": 0.20,
+                "troll": 0.15
             }
 
         # 生成评论
@@ -90,7 +91,7 @@ class SocialPulse:
 
             # 添加@提及
             if self.config.get("pulse_settings", {}).get("enable_at_mentions", True):
-                if type_name in ["hater", "provocative"]:
+                if type_name in ["hater", "provocative", "troll"]:
                     base_content = f"@{star_name} {base_content}"
 
             comment = Comment(
@@ -177,19 +178,23 @@ class SocialPulse:
     def _get_biased_weights(self, bias: str) -> Dict[str, float]:
         """根据倾向调整评论类型权重"""
         base_weights = {
-            "fan": 0.15,
-            "hater": 0.35,
-            "neutral": 0.25,
-            "provocative": 0.25
+            "fan": 0.10,
+            "hater": 0.30,
+            "neutral": 0.15,
+            "provocative": 0.30,
+            "troll": 0.15
         }
 
         if bias == "provocative":
-            base_weights["provocative"] = 0.45
-            base_weights["hater"] = 0.35
-            base_weights["fan"] = 0.1
+            base_weights["provocative"] = 0.40
+            base_weights["troll"] = 0.25
+            base_weights["hater"] = 0.20
+            base_weights["fan"] = 0.05
         elif bias == "hater":
-            base_weights["hater"] = 0.5
-            base_weights["fan"] = 0.1
+            base_weights["hater"] = 0.45
+            base_weights["troll"] = 0.20
+            base_weights["provocative"] = 0.20
+            base_weights["fan"] = 0.05
 
         return base_weights
 

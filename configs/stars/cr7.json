@@ -3,7 +3,7 @@
   "name": "C罗",
   "full_name": "Cristiano Ronaldo",
   "description": "葡萄牙足球巨星，5次金球奖得主",
-  "avatar": "/static/avatars/cr7.png",
+  "avatar": "/static/avatars/messi.jpg",
 
   "trigger_words": {
     "heavy": {

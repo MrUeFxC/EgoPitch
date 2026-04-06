@@ -11,168 +11,291 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
+            overflow: hidden;
         }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 20px 0 30px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; height: 100vh; display: flex; flex-direction: column; }
+
+        /* 头部 */
+        header { text-align: center; padding: 10px 0; }
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             background: linear-gradient(90deg, #f5af19, #f12711);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        header p { color: #888; margin-top: 10px; }
+        header p { color: #666; font-size: 0.9rem; }
 
         /* 状态栏 */
         .status-bar {
             background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .star-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #f5af19;
+
+        /* 星球星信息区 */
+        .star-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        .star-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5af19;
+            box-shadow: 0 2px 8px rgba(245, 175, 25, 0.3);
+        }
+        .star-name { font-size: 1.1rem; font-weight: bold; color: #f5af19; }
+
         .layer-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 14px;
+            border-radius: 16px;
             font-weight: bold;
+            font-size: 0.85rem;
             transition: all 0.3s;
         }
         .layer-1 { background: #22c55e; }
         .layer-2 { background: #f59e0b; }
-        .layer-3 { background: #ef4444; animation: pulse 1s infinite; }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+        .layer-3 { background: #ef4444; animation: pulse 0.8s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+        .anger-section { display: flex; align-items: center; gap: 8px; flex: 1; max-width: 300px; }
         .anger-bar {
             flex: 1;
-            margin: 0 20px;
-            height: 12px;
+            height: 10px;
             background: rgba(255,255,255,0.2);
-            border-radius: 6px;
+            border-radius: 5px;
             overflow: hidden;
         }
-        .anger-fill {
-            height: 100%;
-            transition: width 0.3s, background 0.3s;
-            border-radius: 6px;
-        }
+        .anger-fill { height: 100%; transition: width 0.3s, background 0.3s; border-radius: 5px; }
 
-        /* 主内容区 */
+        .sentiment-badge { font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; background: rgba(239,68,68,0.3); }
+
+        /* 主内容区 - 弹幕模式 */
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
+            grid-template-columns: 1fr 280px;
+            gap: 15px;
+            flex: 1;
+            min-height: 0;
         }
 
         /* 聊天区 */
-        .chat-section { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; }
+        .chat-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 弹幕层 */
+        .barrage-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 120px;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .barrage-item {
+            position: absolute;
+            white-space: nowrap;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            animation: barrageMove linear forwards;
+            pointer-events: auto;
+            cursor: pointer;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .barrage-item .likes { font-size: 0.7rem; opacity: 0.7; }
+
+        /* 弹幕颜色 */
+        .barrage-item.fan { background: rgba(34, 197, 94, 0.7); color: #fff; }
+        .barrage-item.hater { background: rgba(239, 68, 68, 0.8); color: #fff; }
+        .barrage-item.neutral { background: rgba(100, 100, 100, 0.6); color: #fff; }
+        .barrage-item.provocative { background: rgba(249, 158, 11, 0.8); color: #fff; font-weight: bold; }
+        .barrage-item.troll { background: rgba(168, 85, 247, 0.8); color: #fff; }
+        .barrage-item.ai_generated { background: rgba(124, 58, 237, 0.7); color: #fff; }
+
+        @keyframes barrageMove {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
+        /* 弹幕控制 */
+        .barrage-controls {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 20;
+            display: flex;
+            gap: 8px;
+        }
+        .barrage-btn {
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+        }
+        .barrage-btn:hover { background: rgba(255,255,255,0.3); }
+        .barrage-btn.active { background: rgba(34, 197, 94, 0.6); }
+
+        /* 聊天内容 */
         .chat-container {
-            height: 350px;
+            height: 250px;
             overflow-y: auto;
             padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            z-index: 5;
+            position: relative;
         }
         .message {
             margin-bottom: 12px;
             padding: 10px 14px;
             border-radius: 12px;
             max-width: 85%;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
         }
-        .message.host { background: #2563eb; margin-right: auto; }
-        .message.star { background: linear-gradient(135deg, #7c3aed, #a855f7); margin-left: auto; }
-        .message .sender { font-size: 0.75rem; opacity: 0.7; margin-bottom: 4px; }
-        .message .anger-tag { font-size: 0.7rem; color: #f59e0b; margin-top: 4px; }
-        .input-area { display: flex; gap: 10px; }
+        .message.host {
+            background: #2563eb;
+            margin-right: auto;
+            flex-direction: row-reverse;
+        }
+        .message.star {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            margin-left: auto;
+        }
+        .message .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .message .msg-content { flex: 1; }
+        .message .sender { font-size: 0.7rem; opacity: 0.7; margin-bottom: 3px; }
+        .message .anger-tag { font-size: 0.65rem; color: #f59e0b; margin-top: 3px; }
+
+        /* 输入区 */
+        .input-area { display: flex; gap: 8px; z-index: 5; position: relative; }
         .input-area input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: rgba(255,255,255,0.1);
             color: #fff;
+            font-size: 0.9rem;
         }
         .input-area input::placeholder { color: #666; }
         .input-area button {
-            padding: 12px 24px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: linear-gradient(135deg, #f5af19, #f12711);
             color: #fff;
             font-weight: bold;
             cursor: pointer;
+            font-size: 0.85rem;
         }
         .input-area button:hover { transform: scale(1.02); }
         .reset-btn { background: rgba(255,255,255,0.2) !important; }
 
-        /* 舆论区 */
+        /* 触发词面板 */
+        .triggers-panel {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            z-index: 5;
+        }
+        .triggers-panel h4 { color: #f59e0b; margin-bottom: 8px; font-size: 0.85rem; }
+        .trigger-row { display: flex; flex-wrap: wrap; gap: 4px; }
+        .trigger-row span {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .trigger-row.heavy span:hover { background: rgba(239, 68, 68, 0.5); }
+        .trigger-row.medium span:hover { background: rgba(249, 158, 11, 0.5); }
+        .trigger-row.light span:hover { background: rgba(34, 197, 94, 0.5); }
+
+        /* 舆论统计区 */
         .pulse-section {
             background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
         }
-        .pulse-section h3 {
-            font-size: 1rem;
-            color: #f59e0b;
+        .pulse-section h3 { font-size: 0.9rem; color: #f59e0b; margin-bottom: 8px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
             margin-bottom: 10px;
         }
-        .sentiment-bar {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 10px;
+        .stat-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
         }
-        .comment-list {
-            max-height: 300px;
+        .stat-item .value { font-size: 1.2rem; font-weight: bold; }
+        .stat-item .label { font-size: 0.7rem; color: #888; }
+        .stat-item.negative .value { color: #ef4444; }
+        .stat-item.positive .value { color: #22c55e; }
+
+        /* 评论流列表 */
+        .comment-stream {
+            flex: 1;
             overflow-y: auto;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 8px;
         }
         .comment-item {
             background: rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 8px;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
         }
         .comment-item.fan { border-left: 3px solid #22c55e; }
         .comment-item.hater { border-left: 3px solid #ef4444; }
         .comment-item.neutral { border-left: 3px solid #888; }
         .comment-item.provocative { border-left: 3px solid #f59e0b; }
-        .comment-content { font-size: 0.85rem; }
+        .comment-item.troll { border-left: 3px solid #a855f7; }
         .comment-meta {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #666;
-            margin-top: 5px;
+            margin-top: 4px;
             display: flex;
             justify-content: space-between;
         }
-
-        /* 触发词面板 */
-        .triggers-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-        }
-        .triggers-panel h4 { color: #f59e0b; margin-bottom: 10px; }
-        .trigger-group { margin-bottom: 8px; }
-        .trigger-group .label { font-size: 0.75rem; color: #666; }
-        .trigger-group span {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            padding: 4px 8px;
-            border-radius: 12px;
-            margin: 2px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .trigger-group.heavy span:hover { background: rgba(239, 68, 68, 0.6); }
-        .trigger-group.medium span:hover { background: rgba(249, 158, 11, 0.6); }
-        .trigger-group.light span:hover { background: rgba(34, 197, 94, 0.6); }
 
         /* 怒气弹窗 */
         .anger-popup {
@@ -181,25 +304,39 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(239, 68, 68, 0.95);
-            padding: 20px 40px;
-            border-radius: 16px;
-            font-size: 1.5rem;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.3rem;
             font-weight: bold;
             z-index: 100;
-            animation: popIn 0.5s ease-out forwards;
+            animation: popIn 0.4s ease-out forwards;
         }
         @keyframes popIn {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            60% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
         }
 
-        /* 阶段提示 */
-        .phase-indicator {
-            font-size: 0.85rem;
-            color: #888;
-            text-align: center;
-            margin-bottom: 10px;
+        /* 阶段指示 */
+        .phase-badge {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(100,100,100,0.4);
+        }
+
+        /* 主持人头像 */
+        .host-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -207,79 +344,202 @@
     <div class="container">
         <header>
             <h1>EgoPitch</h1>
-            <p>世界杯球星 AI 访谈模拟器 - 问题越犀利，怒气越高！舆论实时注入刺激球星情绪</p>
+            <p>世界杯球星 AI 访谈模拟器 · 实时弹幕舆论刺激</p>
         </header>
 
-        <div class="phase-indicator" id="phaseIndicator">访谈阶段: 开场阶段</div>
-
         <div class="status-bar">
-            <div class="star-name" id="starName">C罗</div>
-            <div class="layer-badge layer-1" id="layerBadge">公共人格</div>
-            <div class="anger-bar">
-                <div class="anger-fill" id="angerFill" style="width: 0%; background: #22c55e;"></div>
+            <div class="star-info">
+                <img class="star-avatar" id="starAvatar" src="/static/avatars/default.png" alt="avatar">
+                <div class="star-name" id="starName">C罗</div>
             </div>
-            <span id="angerText">怒气: 0%</span>
-            <span id="sentimentText" style="color: #ef4444;">舆论: 0</span>
+            <div class="phase-badge" id="phaseIndicator">开场阶段</div>
+            <div class="layer-badge layer-1" id="layerBadge">公共人格</div>
+            <div class="anger-section">
+                <span style="font-size:0.8rem;">怒气</span>
+                <div class="anger-bar">
+                    <div class="anger-fill" id="angerFill" style="width: 0%; background: #22c55e;"></div>
+                </div>
+                <span id="angerText" style="font-size:0.85rem;">0%</span>
+            </div>
+            <div class="sentiment-badge" id="sentimentBadge">舆论: 0</div>
         </div>
 
         <div class="main-content">
             <!-- 聊天区 -->
             <div class="chat-section">
-                <div class="chat-container" id="chatContainer">
-                    <div class="message star">
-                        <div class="sender">C罗</div>
-                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
-                    </div>
-                </div>
-                <div class="input-area">
-                    <input type="text" id="messageInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendMessage()">
-                    <button onclick="sendMessage()">发送</button>
-                    <button class="reset-btn" onclick="resetGame()">重置</button>
-                    <button class="reset-btn" onclick="getPulse()">舆论</button>
+                <!-- 弹幕控制 -->
+                <div class="barrage-controls">
+                    <button class="barrage-btn active" id="barrageToggle" onclick="toggleBarrage()">弹幕 ON</button>
+                    <button class="barrage-btn" onclick="clearBarrage()">清空</button>
                 </div>
 
+                <!-- 弹幕层 -->
+                <div class="barrage-layer" id="barrageLayer"></div>
+
+                <!-- 聊天内容 -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="message star">
+                        <img class="msg-avatar" id="firstMsgAvatar" src="/static/avatars/default.png" alt="avatar">
+                        <div class="msg-content">
+                            <div class="sender">C罗</div>
+                            <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入区 -->
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="输入犀利问题..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button onclick="sendMessage()">发送</button>
+                    <button class="reset-btn" onclick="resetGame()">重置</button>
+                </div>
+
+                <!-- 触发词 -->
                 <div class="triggers-panel">
-                    <h4>🎯 敏感词分级</h4>
-                    <div class="trigger-group heavy">
-                        <div class="label">重度触发 (+15)</div>
+                    <h4>🎯 快速触发</h4>
+                    <div class="trigger-row heavy">
                         <span onclick="useTrigger('替补')">替补</span>
                         <span onclick="useTrigger('替补席')">替补席</span>
                         <span onclick="useTrigger('废物')">废物</span>
+                        <span onclick="useTrigger('垃圾')">垃圾</span>
                     </div>
-                    <div class="trigger-group medium">
-                        <div class="label">中度触发 (+10)</div>
+                    <div class="trigger-row medium">
                         <span onclick="useTrigger('梅西')">梅西</span>
                         <span onclick="useTrigger('下滑')">下滑</span>
                         <span onclick="useTrigger('老了')">老了</span>
                         <span onclick="useTrigger('过气')">过气</span>
+                        <span onclick="useTrigger('不如')">不如</span>
                     </div>
-                    <div class="trigger-group light">
-                        <div class="label">轻度触发 (+5) + AI智能分析</div>
+                    <div class="trigger-row light">
                         <span onclick="useTrigger('为什么')">为什么</span>
                         <span onclick="useTrigger('质疑')">质疑</span>
+                        <span onclick="useTrigger('批评')">批评</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 舆论区 -->
+            <!-- 舆论统计 -->
             <div class="pulse-section">
-                <h3>📢 社交舆论</h3>
-                <div class="sentiment-bar" id="pulseStatus">负面舆论累计: 0</div>
-                <div class="comment-list" id="commentList">
-                    <div style="color: #666; font-size: 0.85rem;">舆论评论将随访谈深入自动生成...</div>
+                <h3>📊 舆论分析</h3>
+                <div class="stats-grid">
+                    <div class="stat-item negative">
+                        <div class="value" id="haterCount">0</div>
+                        <div class="label">黑粉评论</div>
+                    </div>
+                    <div class="stat-item positive">
+                        <div class="value" id="fanCount">0</div>
+                        <div class="label">粉丝评论</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="totalSentiment">0</div>
+                        <div class="label">负面舆论值</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value" id="barrageCount">0</div>
+                        <div class="label">弹幕总数</div>
+                    </div>
+                </div>
+
+                <div class="comment-stream" id="commentStream">
+                    <div style="color:#666;font-size:0.8rem;text-align:center;">实时评论流...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const phaseNames = {
-            1: '开场阶段',
-            2: '试探阶段',
-            3: '深挖阶段',
-            4: '引爆阶段'
-        };
+        // 弹幕系统
+        let barrageEnabled = true;
+        let barrageInterval = null;
+        let barrageQueue = [];
+        let commentStats = { fan: 0, hater: 0, neutral: 0, provocative: 0, troll: 0, ai_generated: 0 };
+        let totalBarrageCount = 0;
+        let currentAvatar = '/static/avatars/default.png';
+        let currentStarName = 'C罗';
 
+        const phaseNames = { 1: '开场阶段', 2: '试探阶段', 3: '深挖阶段', 4: '引爆阶段' };
+        const barrageSpeed = { slow: 10, normal: 8, fast: 6 };
+
+        // 启动弹幕轮询
+        function startBarragePolling() {
+            if (barrageInterval) return;
+
+            barrageInterval = setInterval(async () => {
+                if (!barrageEnabled) return;
+
+                try {
+                    const res = await fetch('/api/barrage?count=6');
+                    const data = await res.json();
+                    addBarrageItems(data.comments);
+                    updateSentimentDisplay(data.sentiment);
+                } catch (e) {
+                    console.error('弹幕获取失败:', e);
+                }
+            }, 2000);
+        }
+
+        // 添加弹幕
+        function addBarrageItems(comments) {
+            const layer = document.getElementById('barrageLayer');
+            const stream = document.getElementById('commentStream');
+
+            comments.forEach((c, i) => {
+                commentStats[c.type] = (commentStats[c.type] || 0) + 1;
+                totalBarrageCount++;
+
+                if (barrageEnabled) {
+                    const item = document.createElement('div');
+                    item.className = `barrage-item ${c.type}`;
+                    item.style.top = `${10 + (i % 6) * 38}px`;
+                    item.style.animationDuration = `${6 + Math.random() * 4}s`;
+                    item.innerHTML = `${c.content} <span class="likes">♥${c.likes}</span>`;
+                    layer.appendChild(item);
+                    item.addEventListener('animationend', () => item.remove());
+                }
+
+                const streamItem = document.createElement('div');
+                streamItem.className = `comment-item ${c.type}`;
+                streamItem.innerHTML = `
+                    <div>${c.content}</div>
+                    <div class="comment-meta">
+                        <span>${c.type}</span>
+                        <span>♥${c.likes}</span>
+                    </div>
+                `;
+                stream.insertBefore(streamItem, stream.firstChild);
+
+                while (stream.children.length > 30) {
+                    stream.removeChild(stream.lastChild);
+                }
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('haterCount').textContent = commentStats.hater || 0;
+            document.getElementById('fanCount').textContent = commentStats.fan || 0;
+            document.getElementById('totalSentiment').textContent = document.getElementById('sentimentBadge').textContent.replace('舆论: ', '');
+            document.getElementById('barrageCount').textContent = totalBarrageCount;
+        }
+
+        function updateSentimentDisplay(value) {
+            document.getElementById('sentimentBadge').textContent = `舆论: ${value}`;
+            document.getElementById('totalSentiment').textContent = value;
+        }
+
+        function toggleBarrage() {
+            barrageEnabled = !barrageEnabled;
+            const btn = document.getElementById('barrageToggle');
+            btn.textContent = barrageEnabled ? '弹幕 ON' : '弹幕 OFF';
+            btn.classList.toggle('active', barrageEnabled);
+        }
+
+        function clearBarrage() {
+            document.getElementById('barrageLayer').innerHTML = '';
+        }
+
+        // 聊天功能
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -296,44 +556,60 @@
                 });
                 const data = await response.json();
 
+                // 更新头像
+                if (data.avatar) {
+                    currentAvatar = data.avatar;
+                    updateAvatarDisplay(data.avatar);
+                }
+
                 if (data.anger_increase > 0) {
                     showAngerPopup(data.anger_increase);
+                }
+
+                if (data.comments && data.comments.length > 0) {
+                    addBarrageItems(data.comments);
                 }
 
                 setTimeout(() => {
                     addMessage(data.response, 'star', data.anger_increase);
                     updateState(data);
-                    addComments(data.comments);
                 }, 300);
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        async function getPulse() {
-            try {
-                const response = await fetch('/api/comments');
-                const data = await response.json();
-                addComments(data.comments);
-                document.getElementById('pulseStatus').textContent = `负面舆论累计: ${data.sentiment}`;
-            } catch (error) {
-                console.error('Error:', error);
-            }
+        function updateAvatarDisplay(avatarUrl) {
+            // 更新状态栏头像
+            document.getElementById('starAvatar').src = avatarUrl;
+            // 更新首条消息头像
+            document.getElementById('firstMsgAvatar').src = avatarUrl;
         }
 
         async function resetGame() {
             try {
                 await fetch('/api/reset', { method: 'POST' });
+
+                const avatarHtml = currentAvatar ? `<img class="msg-avatar" src="${currentAvatar}" alt="avatar">` : '';
+                const starName = currentStarName || 'C罗';
+
                 document.getElementById('chatContainer').innerHTML = `
                     <div class="message star">
-                        <div class="sender">C罗</div>
-                        <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                        ${avatarHtml}
+                        <div class="msg-content">
+                            <div class="sender">${starName}</div>
+                            <div>大家好，感谢今天的邀请。我准备好回答任何问题了。</div>
+                        </div>
                     </div>
                 `;
-                document.getElementById('commentList').innerHTML = `
-                    <div style="color: #666; font-size: 0.85rem;">舆论评论将随访谈深入自动生成...</div>
+                document.getElementById('commentStream').innerHTML = `
+                    <div style="color:#666;font-size:0.8rem;text-align:center;">实时评论流...</div>
                 `;
-                updateState({ anger: 0, layer: 1, layer_name: '公共人格', sentiment: 0, phase: 1 });
+                clearBarrage();
+                commentStats = { fan: 0, hater: 0, neutral: 0, provocative: 0, troll: 0, ai_generated: 0 };
+                totalBarrageCount = 0;
+                updateStats();
+                updateState({ anger: 0, layer: 1, layer_name: '公共人格', phase: 1, sentiment: 0 });
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -344,7 +620,7 @@
             popup.className = 'anger-popup';
             popup.textContent = `怒气 +${increase}`;
             document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 500);
+            setTimeout(() => popup.remove(), 400);
         }
 
         function addMessage(text, type, angerInc) {
@@ -352,56 +628,48 @@
             const msg = document.createElement('div');
             msg.className = `message ${type}`;
 
-            let angerTag = '';
-            if (angerInc > 0 && type === 'star') {
-                angerTag = `<div class="anger-tag">⚡ 本次触发 +${angerInc}</div>`;
-            }
+            const avatarHtml = type === 'star'
+                ? `<img class="msg-avatar" src="${currentAvatar}" alt="avatar">`
+                : '<div class="host-avatar">主</div>';
+
+            const senderName = type === 'host' ? '主持人' : currentStarName;
+            const angerTag = angerInc > 0 && type === 'star' ? `<div class="anger-tag">⚡ +${angerInc}</div>` : '';
 
             msg.innerHTML = `
-                <div class="sender">${type === 'host' ? '主持人' : 'C罗'}</div>
-                <div>${text}</div>
-                ${angerTag}
+                ${avatarHtml}
+                <div class="msg-content">
+                    <div class="sender">${senderName}</div>
+                    <div>${text}</div>
+                    ${angerTag}
+                </div>
             `;
             container.appendChild(msg);
             container.scrollTop = container.scrollHeight;
         }
 
-        function addComments(comments) {
-            if (!comments || comments.length === 0) return;
-
-            const list = document.getElementById('commentList');
-            list.innerHTML = '';
-
-            comments.forEach(c => {
-                const item = document.createElement('div');
-                item.className = `comment-item ${c.type}`;
-                item.innerHTML = `
-                    <div class="comment-content">${c.content}</div>
-                    <div class="comment-meta">
-                        <span>${c.type}</span>
-                        <span>❤ ${c.likes}</span>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        }
-
         function updateState(data) {
             document.getElementById('angerFill').style.width = `${data.anger}%`;
-            document.getElementById('angerText').textContent = `怒气: ${data.anger}%`;
+            document.getElementById('angerText').textContent = `${data.anger}%`;
             document.getElementById('layerBadge').textContent = data.layer_name;
             document.getElementById('layerBadge').className = `layer-badge layer-${data.layer}`;
+            document.getElementById('phaseIndicator').textContent = phaseNames[data.phase] || '开场阶段';
+
+            if (data.avatar) {
+                updateAvatarDisplay(data.avatar);
+            }
 
             const angerFill = document.getElementById('angerFill');
             if (data.anger < 40) angerFill.style.background = '#22c55e';
             else if (data.anger < 80) angerFill.style.background = '#f59e0b';
             else angerFill.style.background = '#ef4444';
 
-            // 更新舆论值
             fetch('/api/state').then(r => r.json()).then(s => {
-                document.getElementById('sentimentText').textContent = `舆论: ${s.sentiment}`;
-                document.getElementById('pulseStatus').textContent = `负面舆论累计: ${s.sentiment}`;
-                document.getElementById('phaseIndicator').textContent = `访谈阶段: ${phaseNames[s.phase] || '开场阶段'}`;
+                updateSentimentDisplay(s.sentiment);
+                if (s.avatar) updateAvatarDisplay(s.avatar);
+                if (s.star) {
+                    currentStarName = s.star;
+                    document.getElementById('starName').textContent = s.star;
+                }
             });
         }
 
@@ -410,11 +678,18 @@
             sendMessage();
         }
 
-        // 初始化状态
+        // 初始化
         fetch('/api/state').then(r => r.json()).then(data => {
             document.getElementById('starName').textContent = data.star;
+            currentStarName = data.star;
+            if (data.avatar) {
+                currentAvatar = data.avatar;
+                updateAvatarDisplay(data.avatar);
+            }
             updateState(data);
         });
+
+        startBarragePolling();
     </script>
 </body>
 </html>

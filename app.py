@@ -161,6 +161,7 @@ class ChatResponse(BaseModel):
     anger_increase: int
     comments: List[dict] = []
     star_name: str
+    avatar: str
 
 
 class CommentsResponse(BaseModel):
@@ -172,6 +173,7 @@ class StarInfo(BaseModel):
     id: str
     name: str
     description: str
+    avatar: str
 
 
 # ============ API 路由 ============
@@ -180,7 +182,7 @@ async def list_stars():
     """获取所有球星列表"""
     stars = StarLoader.get_all_stars()
     return [
-        StarInfo(id=s.id, name=s.name, description=s.description)
+        StarInfo(id=s.id, name=s.name, description=s.description, avatar=s.avatar)
         for s in stars
     ]
 
@@ -259,27 +261,65 @@ async def chat(msg: ChatMessage):
         layer_name=anger_engine.get_layer_name(sess.layer),
         anger_increase=anger_increase,
         comments=comments,
-        star_name=sess.star.name
+        star_name=sess.star.name,
+        avatar=sess.star.avatar
     )
 
 
 @app.get("/api/comments", response_model=CommentsResponse)
-async def get_comments(topic: Optional[str] = None):
+async def get_comments(topic: Optional[str] = None, count: int = 5):
     """获取舆论评论"""
     sess = get_session()
     comments = social_pulse.generate_comments(
         topic=topic,
-        count=3,
+        count=count,
         star_name=sess.star.name
     )
 
     return CommentsResponse(
         comments=[
-            {"content": c.content, "likes": c.likes, "type": c.type}
+            {"content": c.content, "likes": c.likes, "type": c.type, "sentiment": c.sentiment}
             for c in comments
         ],
         sentiment=social_pulse.get_sentiment_value()
     )
+
+
+@app.get("/api/barrage")
+async def get_barrage(count: int = 8):
+    """获取弹幕评论（高频调用）"""
+    sess = get_session()
+
+    # 根据怒气值动态调整评论类型分布和数量
+    anger_level = sess.anger
+
+    # 高怒气时更多挑衅评论
+    if anger_level >= 80:
+        actual_count = max(count, 10)
+    elif anger_level >= 40:
+        actual_count = max(count, 8)
+    else:
+        actual_count = count
+
+    comments = social_pulse.generate_comments(
+        topic=None,
+        count=actual_count,
+        star_name=sess.star.name
+    )
+
+    return {
+        "comments": [
+            {
+                "content": c.content,
+                "type": c.type,
+                "sentiment": c.sentiment,
+                "likes": c.likes
+            }
+            for c in comments
+        ],
+        "anger": sess.anger,
+        "sentiment": social_pulse.get_sentiment_value()
+    }
 
 
 @app.post("/api/reset")
@@ -300,6 +340,7 @@ async def get_state():
         "layer_name": anger_engine.get_layer_name(sess.layer),
         "phase": sess.phase,
         "star": sess.star.name,
+        "avatar": sess.star.avatar,
         "sentiment": social_pulse.get_sentiment_value()
     }
 
